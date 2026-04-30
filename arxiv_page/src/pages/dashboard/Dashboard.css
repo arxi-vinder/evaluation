@@ -1,0 +1,137 @@
+/* Container */
+.dashboard-container {
+  padding: 40px;
+  background-color: #fafbfc;
+  min-height: 100vh;
+  flex: 1;
+}
+
+/* Title */
+.dashboard-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 30px;
+}
+
+/* Card */
+.stat-card {
+  background-color: #ffffff;
+  width: 320px;
+  padding: 24px;
+  border-radius: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  border: 1px solid #f1f5f9;
+  margin-bottom: 40px; /* tambah jarak ke tabel */
+}
+
+.stat-info p {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.stat-info h3 {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* Icon */
+.stat-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  background-color: #ebebff;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7c7cff;
+}
+
+/* ===== TABLE SECTION ===== */
+
+.table-section {
+  margin-top: 10px;
+}
+
+.table-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #1e293b;
+}
+
+/* Table wrapper biar ada card feel */
+.custom-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+/* Header */
+.custom-table thead {
+  background-color: #f1f5f9;
+}
+
+.custom-table th {
+  text-align: left;
+  padding: 16px;
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* Row */
+.custom-table tbody tr {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.2s ease;
+}
+
+.custom-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.custom-table td {
+  padding: 16px;
+  font-size: 14px;
+  color: #334155;
+}
+
+/* User cell */
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+}
+
+/* Avatar */
+.avatar {
+  width: 36px;
+  height: 36px;
+  background-color: #e2e8f0;
+  border-radius: 50%;
+}
+
+/* Responsive (biar gak pecah di layar kecil) */
+@media (max-width: 768px) {
+  .stat-card {
+    width: 100%;
+  }
+
+  .custom-table {
+    display: block;
+    overflow-x: auto;
+  }
+}
