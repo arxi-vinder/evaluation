@@ -4,9 +4,11 @@
   flex-direction: column;
   width: 260px;
   height: 100vh;
+  flex-shrink: 0;
+  overflow-y: auto;
   background-color: #ffffff;
   border-right: 1px solid #f1f5f9;
-  font-family: 'Inter', sans-serif; /* Pastikan menggunakan font sans-serif bersih */
+  font-family: 'Inter', sans-serif;
 }
 
 .sidebar-header {
@@ -24,7 +26,10 @@
 
 .sidebar-nav {
   flex: 1;
-  padding: 0 16px;
+  padding: 8px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
 }
 
 .nav-item {
@@ -34,12 +39,24 @@
   padding: 14px 20px;
   border: none;
   border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nav-item.active {
   background-color: #4e7eff;
   color: #ffffff;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  /* Shadow biru glow sesuai gambar */
   box-shadow: 0px 10px 20px -5px rgba(78, 126, 255, 0.4);
+}
+
+.nav-item.inactive {
+  background-color: transparent;
+  color: #64748b;
+}
+
+.nav-item.inactive:hover {
+  background-color: #f1f5f9;
+  color: #1e293b;
 }
 
 .nav-item:active {
@@ -83,4 +100,65 @@
 
 .logout-btn span {
   margin-left: 16px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    border-right: none;
+    border-bottom: 1px solid #f1f5f9;
+    overflow-y: visible;
+    overflow-x: auto;
+    padding: 0 12px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+  }
+
+  .sidebar-header {
+    padding: 14px 8px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-divider {
+    display: none;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    flex-direction: row;
+    gap: 8px;
+    padding: 8px;
+    overflow-x: auto;
+  }
+
+  .nav-item {
+    white-space: nowrap;
+    width: auto;
+    padding: 10px 16px;
+  }
+
+  .nav-item span {
+    font-size: 13px;
+    margin-left: 8px;
+  }
+
+  .sidebar-footer {
+    padding: 8px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+
+  .logout-btn {
+    padding: 10px 12px;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  .logout-btn span {
+    margin-left: 8px;
+  }
 }

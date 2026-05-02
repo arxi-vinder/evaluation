@@ -1,35 +1,43 @@
-import './Sidebar.css';
-import { Gauge, Power } from 'lucide-react';
+import './sidebar.css';
+import { Gauge, FlaskConical, Power } from 'lucide-react';
 
-const Sidebar = () => {
-return (
-    <aside className="sidebar">
-      {/* Bagian Logo */}
+type Page = 'dashboard' | 'testing';
+
+type SidebarProps = {
+    activePage: Page;
+    onPageChange: (page: Page) => void;
+    };
+
+    const Sidebar = ({ activePage, onPageChange }: SidebarProps) => {
+    return (
+        <aside className="sidebar">
         <div className="sidebar-header">
             <h1>arxi.vinder</h1>
         </div>
 
         <div className="sidebar-divider" />
 
-        {/* Bagian Navigasi Tengah */}
         <nav className="sidebar-nav">
-            <button className="nav-item">
+            <button
+            className={`nav-item ${activePage === 'dashboard' ? 'active' : 'inactive'}`}
+            onClick={() => onPageChange('dashboard')}
+            >
             <Gauge size={20} strokeWidth={2.5} />
-            <span>Dashboard</span>
+            <span>F1 Score</span>
+            </button>
+
+            <button
+            className={`nav-item ${activePage === 'testing' ? 'active' : 'inactive'}`}
+            onClick={() => onPageChange('testing')}
+            >
+            <FlaskConical size={20} strokeWidth={2.5} />
+            <span>Evaluation Tab</span>
             </button>
         </nav>
 
         <div className="sidebar-divider" />
-
-        {/* Bagian Bawah (Logout) */}
-        <div className="sidebar-footer">
-            <button className="logout-btn">
-            <Power size={24} strokeWidth={2} />
-            <span>Logout</span>
-            </button>
-        </div>
         </aside>
-);
+    );
 };
 
 export default Sidebar;
