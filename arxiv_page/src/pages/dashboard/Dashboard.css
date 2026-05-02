@@ -401,3 +401,229 @@ body {
     border-radius: 16px;
   }
 }
+
+/* Header actions group */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Delete button */
+.delete-paper-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: #fff1f2;
+  color: #e11d48;
+  border: 1.5px solid #fecdd3;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.delete-paper-btn:hover {
+  background-color: #ffe4e6;
+  transform: translateY(-2px);
+  box-shadow: 0px 8px 16px -4px rgba(225, 29, 72, 0.2);
+}
+
+.delete-paper-btn:active {
+  transform: scale(0.97);
+}
+
+/* Delete modal — wider than add-paper modal */
+.delete-modal-box {
+  max-width: 720px;
+}
+
+/* Search bar */
+.delete-search-bar {
+  position: relative;
+  padding: 0 28px;
+  margin-top: 20px;
+}
+
+.delete-search-bar input {
+  width: 100%;
+  padding: 10px 14px 10px 38px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #1e293b;
+  font-family: 'Inter', sans-serif;
+  background-color: #f8fafc;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.delete-search-bar input:focus {
+  border-color: #4e7eff;
+  box-shadow: 0 0 0 3px rgba(78, 126, 255, 0.12);
+  background-color: #fff;
+}
+
+.delete-search-icon {
+  position: absolute;
+  left: 42px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+/* Paper list */
+.paper-list {
+  margin: 16px 28px 0;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  overflow-y: auto;
+  max-height: 340px;
+}
+
+.paper-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.15s ease;
+}
+
+.paper-list-item:last-child {
+  border-bottom: none;
+}
+
+.paper-list-item:hover {
+  background-color: #f8fafc;
+}
+
+.paper-list-item.selected {
+  background-color: #eff6ff;
+}
+
+.paper-list-radio {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  transition: border-color 0.15s ease;
+}
+
+.paper-list-item.selected .paper-list-radio {
+  border-color: #4e7eff;
+}
+
+.radio-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: transparent;
+  transition: background-color 0.15s ease;
+}
+
+.paper-list-item.selected .radio-dot {
+  background-color: #4e7eff;
+}
+
+.paper-list-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.paper-list-title {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.paper-list-meta {
+  margin: 0;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* Warning confirm zone */
+.delete-confirm-zone {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 16px 28px 0;
+  padding: 12px 14px;
+  background-color: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #92400e;
+}
+
+.delete-confirm-zone svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: #f97316;
+}
+
+/* Delete modal body padding */
+.delete-modal-body {
+  padding-bottom: 28px;
+}
+
+.delete-modal-body .modal-actions {
+  padding: 0 28px;
+  margin-top: 20px;
+}
+
+.delete-modal-body .modal-error {
+  margin: 12px 28px 0;
+}
+
+/* Delete confirm button */
+.modal-delete-btn {
+  padding: 10px 24px;
+  background-color: #e11d48;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.modal-delete-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.modal-delete-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Success state for delete modal */
+.delete-modal-success {
+  color: #22c55e;
+}
+
+/* Status message */
+.delete-status-msg {
+  text-align: center;
+  font-size: 14px;
+  color: #94a3b8;
+  padding: 24px 0;
+  margin: 0 28px;
+}

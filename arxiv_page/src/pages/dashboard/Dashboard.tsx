@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Users, Plus, X, CheckCircle } from 'lucide-react';
+import { Users, Plus, X, CheckCircle, Trash2, AlertTriangle, Search } from 'lucide-react';
 import './Dashboard.css';
 
 type MAPUser = {
@@ -17,6 +17,16 @@ type MAPData = {
 };
 
 type PaperForm = {
+  title: string;
+  abstract: string;
+  published_date: string;
+  category: string;
+  url: string;
+  author: string;
+};
+
+type Paper = {
+  id: number;
   title: string;
   abstract: string;
   published_date: string;
@@ -57,8 +67,17 @@ const DashboardContent = () => {
   const [submitting, setSubmitting] = useState(false);
   const [successId, setSuccessId] = useState<number | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
   const overlayRef = useRef<HTMLDivElement>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [papers, setPapers] = useState<Paper[]>([]);
+  const [loadingPapers, setLoadingPapers] = useState(false);
+  const [papersError, setPapersError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedPaper, setSelectedPaper] = useState<Paper | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const deleteOverlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchMap = async () => {
@@ -128,15 +147,75 @@ const DashboardContent = () => {
     }
   };
 
+  const openDeleteModal = async () => {
+    setSelectedPaper(null);
+    setDeleteSuccess(false);
+    setDeleteError(null);
+    setSearchQuery('');
+    setDeleteModalOpen(true);
+    setLoadingPapers(true);
+    setPapersError(null);
+    try {
+      const res = await fetch("http://localhost:8000/api/v1/papers");
+      const json = await res.json();
+      if (json.status === "success") {
+        setPapers(json.data ?? []);
+      } else {
+        setPapersError(json.message ?? "Gagal memuat data paper.");
+      }
+    } catch {
+      setPapersError("Gagal terhubung ke server.");
+    } finally {
+      setLoadingPapers(false);
+    }
+  };
+
+  const closeDeleteModal = () => {
+    if (deleting) return;
+    setDeleteModalOpen(false);
+  };
+
+  const handleDeleteOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === deleteOverlayRef.current) closeDeleteModal();
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!selectedPaper) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      const res = await fetch(`http://localhost:8000/api/v1/delete/paper/${selectedPaper.id}`, {
+        method: "DELETE",
+      });
+      const json = await res.json();
+      if (json.status === "success") {
+        setDeleteSuccess(true);
+        setPapers(prev => prev.filter(p => p.id !== selectedPaper.id));
+      } else {
+        setDeleteError(json.message ?? "Gagal menghapus paper.");
+      }
+    } catch {
+      setDeleteError("Gagal terhubung ke server.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <div className="dashboard-container">
 
       <div className="dashboard-header-row">
         <h2 className="dashboard-title">Evaluation Dashboard</h2>
-        <button className="add-paper-btn" onClick={openModal}>
-          <Plus size={18} strokeWidth={2.5} />
-          <span>Tambah Paper</span>
-        </button>
+        <div className="header-actions">
+          <button className="delete-paper-btn" onClick={openDeleteModal}>
+            <Trash2 size={18} strokeWidth={2.5} />
+            <span>Hapus Paper</span>
+          </button>
+          <button className="add-paper-btn" onClick={openModal}>
+            <Plus size={18} strokeWidth={2.5} />
+            <span>Tambah Paper</span>
+          </button>
+        </div>
       </div>
 
       {loading && <p>Loading data...</p>}
@@ -313,6 +392,113 @@ const DashboardContent = () => {
                 </div>
 
               </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      {deleteModalOpen && (
+        <div className="modal-overlay" ref={deleteOverlayRef} onClick={handleDeleteOverlayClick}>
+          <div className="modal-box delete-modal-box">
+
+            <div className="modal-header">
+              <h3>Hapus Paper</h3>
+              <button className="modal-close-btn" onClick={closeDeleteModal} disabled={deleting}>
+                <X size={20} />
+              </button>
+            </div>
+
+            {deleteSuccess ? (
+              <div className="modal-success delete-modal-success">
+                <CheckCircle size={48} strokeWidth={1.5} />
+                <p className="modal-success-title">Paper berhasil dihapus!</p>
+                <p className="modal-success-sub">
+                  <strong>{selectedPaper?.title}</strong> telah dihapus dari sistem.
+                </p>
+                <button className="modal-done-btn" onClick={closeDeleteModal}>Tutup</button>
+              </div>
+            ) : (
+              <div className="delete-modal-body">
+
+                <div className="delete-search-bar">
+                  <Search size={16} className="delete-search-icon" />
+                  <input
+                    type="text"
+                    placeholder="Cari judul paper..."
+                    value={searchQuery}
+                    onChange={e => { setSearchQuery(e.target.value); setSelectedPaper(null); }}
+                  />
+                </div>
+
+                {loadingPapers && (
+                  <p className="delete-status-msg">Memuat daftar paper...</p>
+                )}
+
+                {papersError && (
+                  <p className="modal-error">{papersError}</p>
+                )}
+
+                {!loadingPapers && !papersError && (
+                  <div className="paper-list">
+                    {papers.filter(p =>
+                      p.title.toLowerCase().includes(searchQuery.toLowerCase())
+                    ).length === 0 ? (
+                      <p className="delete-status-msg">Tidak ada paper ditemukan.</p>
+                    ) : (
+                      papers
+                        .filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase()))
+                        .map(paper => (
+                          <div
+                            key={paper.id}
+                            className={`paper-list-item ${selectedPaper?.id === paper.id ? 'selected' : ''}`}
+                            onClick={() => setSelectedPaper(paper)}
+                          >
+                            <div className="paper-list-radio">
+                              <div className="radio-dot" />
+                            </div>
+                            <div className="paper-list-info">
+                              <p className="paper-list-title">{paper.title}</p>
+                              <p className="paper-list-meta">
+                                ID #{paper.id} &middot; {paper.author} &middot; {paper.category}
+                              </p>
+                            </div>
+                          </div>
+                        ))
+                    )}
+                  </div>
+                )}
+
+                {selectedPaper && (
+                  <div className="delete-confirm-zone">
+                    <AlertTriangle size={18} />
+                    <span>
+                      Hapus <strong>"{selectedPaper.title}"</strong>? Tindakan ini tidak dapat dibatalkan.
+                    </span>
+                  </div>
+                )}
+
+                {deleteError && <p className="modal-error">{deleteError}</p>}
+
+                <div className="modal-actions">
+                  <button
+                    type="button"
+                    className="modal-cancel-btn"
+                    onClick={closeDeleteModal}
+                    disabled={deleting}
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    className="modal-delete-btn"
+                    onClick={handleConfirmDelete}
+                    disabled={!selectedPaper || deleting}
+                  >
+                    {deleting ? "Menghapus..." : "Hapus Paper"}
+                  </button>
+                </div>
+
+              </div>
             )}
           </div>
         </div>
