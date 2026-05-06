@@ -1,14 +1,14 @@
 import './sidebar.css';
-import { Gauge, FlaskConical, Power } from 'lucide-react';
+import { Gauge, FlaskConical, BarChart } from 'lucide-react';
 
-type Page = 'dashboard' | 'testing';
+type Page = 'dashboard' | 'testing' | 'chart';
 
 type SidebarProps = {
     activePage: Page;
     onPageChange: (page: Page) => void;
-    };
+};
 
-    const Sidebar = ({ activePage, onPageChange }: SidebarProps) => {
+const Sidebar = ({ activePage, onPageChange }: SidebarProps) => {
     return (
         <aside className="sidebar">
         <div className="sidebar-header">
@@ -32,6 +32,14 @@ type SidebarProps = {
             >
             <FlaskConical size={20} strokeWidth={2.5} />
             <span>Evaluation Tab</span>
+            </button>
+
+            <button
+            className={`nav-item ${activePage === 'chart' ? 'active' : 'inactive'}`}
+            onClick={() => onPageChange('chart')}
+            >
+            <BarChart size={20} strokeWidth={2.5} />
+            <span>Chart Tab</span>
             </button>
         </nav>
 

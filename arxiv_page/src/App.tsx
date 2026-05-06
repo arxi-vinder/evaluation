@@ -3,8 +3,9 @@ import Sidebar from './components/Sidebar';
 import DashboardContent from './pages/dashboard/Dashboard';
 import './App.css';
 import EvaluationMetrics from './pages/metrics/EvaluationMetrics';
+import Chart from './pages/chart/Chart';
 
-type Page = 'dashboard' | 'testing';
+type Page = 'dashboard' | 'testing' | 'chart';
 
 function App() {
   const [activePage, setActivePage] = useState<Page>('dashboard');
@@ -16,6 +17,7 @@ function App() {
       <main className="main-content">
         {activePage === 'dashboard' && <DashboardContent />}
         {activePage === 'testing' && <EvaluationMetrics />}
+        {activePage === 'chart' && <Chart/>}
       </main>
     </div>
   );
