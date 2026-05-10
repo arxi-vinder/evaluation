@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Users, Plus, X, CheckCircle, Trash2, AlertTriangle, Search } from 'lucide-react';
+import { Users, Plus, X, CheckCircle, Trash2, AlertTriangle, Search, Edit2 } from 'lucide-react';
 import './Dashboard.css';
 
 type MAPUser = {
@@ -23,6 +23,14 @@ type PaperForm = {
   category: string;
   url: string;
   author: string;
+};
+
+type UpdatePaperForm = {
+  title?: string;
+  published_date?: string;
+  category?: string;
+  url?: string;
+  author?: string;
 };
 
 type Paper = {
@@ -78,6 +86,17 @@ const DashboardContent = () => {
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const deleteOverlayRef = useRef<HTMLDivElement>(null);
+  const [updateModalOpen, setUpdateModalOpen] = useState(false);
+  const [updatePaperList, setUpdatePaperList] = useState<Paper[]>([]);
+  const [loadingUpdatePapers, setLoadingUpdatePapers] = useState(false);
+  const [updatePapersError, setUpdatePapersError] = useState<string | null>(null);
+  const [updateSearchQuery, setUpdateSearchQuery] = useState('');
+  const [selectedUpdatePaper, setSelectedUpdatePaper] = useState<Paper | null>(null);
+  const [updateForm, setUpdateForm] = useState<UpdatePaperForm>({});
+  const [updating, setUpdating] = useState(false);
+  const [updateSuccess, setUpdateSuccess] = useState(false);
+  const [updateError, setUpdateError] = useState<string | null>(null);
+  const updateOverlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchMap = async () => {
@@ -201,12 +220,95 @@ const DashboardContent = () => {
     }
   };
 
+  const openUpdateModal = async () => {
+    setSelectedUpdatePaper(null);
+    setUpdateSuccess(false);
+    setUpdateError(null);
+    setUpdateSearchQuery('');
+    setUpdateForm({});
+    setUpdateModalOpen(true);
+    setLoadingUpdatePapers(true);
+    setUpdatePapersError(null);
+    try {
+      const res = await fetch("http://localhost:8000/api/v1/papers");
+      const json = await res.json();
+      if (json.status === "success") {
+        setUpdatePaperList(json.data ?? []);
+      } else {
+        setUpdatePapersError(json.message ?? "Gagal memuat data paper.");
+      }
+    } catch {
+      setUpdatePapersError("Gagal terhubung ke server.");
+    } finally {
+      setLoadingUpdatePapers(false);
+    }
+  };
+
+  const closeUpdateModal = () => {
+    if (updating) return;
+    setUpdateModalOpen(false);
+  };
+
+  const handleUpdateOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === updateOverlayRef.current) closeUpdateModal();
+  };
+
+  const handleUpdateChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setUpdateForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleUpdateSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!selectedUpdatePaper) return;
+    setUpdating(true);
+    setUpdateError(null);
+
+    const body: UpdatePaperForm = {};
+    if (updateForm.title) body.title = updateForm.title;
+    if (updateForm.published_date) body.published_date = `${updateForm.published_date}T00:00:00`;
+    if (updateForm.category) body.category = updateForm.category;
+    if (updateForm.url) body.url = updateForm.url;
+    if (updateForm.author) body.author = updateForm.author;
+
+    try {
+      const res = await fetch(`http://localhost:8000/api/v1/update/paper/${selectedUpdatePaper.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      const json = await res.json();
+
+      if (json.status === "success") {
+        setUpdateSuccess(true);
+        setUpdatePaperList(prev =>
+          prev.map(p =>
+            p.id === selectedUpdatePaper.id
+              ? { ...p, ...updateForm }
+              : p
+          )
+        );
+        setUpdateForm({});
+      } else {
+        setUpdateError(json.message ?? "Gagal mengupdate paper.");
+      }
+    } catch {
+      setUpdateError("Gagal terhubung ke server.");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   return (
     <div className="dashboard-container">
 
       <div className="dashboard-header-row">
         <h2 className="dashboard-title">Evaluation Dashboard</h2>
         <div className="header-actions">
+          <button className="update-paper-btn" onClick={openUpdateModal}>
+            <Edit2 size={18} strokeWidth={2.5} />
+            <span>Update Paper</span>
+          </button>
           <button className="delete-paper-btn" onClick={openDeleteModal}>
             <Trash2 size={18} strokeWidth={2.5} />
             <span>Hapus Paper</span>
@@ -497,6 +599,163 @@ const DashboardContent = () => {
                     {deleting ? "Menghapus..." : "Hapus Paper"}
                   </button>
                 </div>
+
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {updateModalOpen && (
+        <div className="modal-overlay" ref={updateOverlayRef} onClick={handleUpdateOverlayClick}>
+          <div className="modal-box update-modal-box">
+
+            <div className="modal-header">
+              <h3>Update Paper</h3>
+              <button className="modal-close-btn" onClick={closeUpdateModal} disabled={updating}>
+                <X size={20} />
+              </button>
+            </div>
+
+            {updateSuccess ? (
+              <div className="modal-success update-modal-success">
+                <CheckCircle size={48} strokeWidth={1.5} />
+                <p className="modal-success-title">Paper berhasil diupdate!</p>
+                <p className="modal-success-sub">
+                  <strong>{selectedUpdatePaper?.title}</strong> telah diperbarui di sistem.
+                </p>
+                <button className="modal-done-btn" onClick={closeUpdateModal}>Tutup</button>
+              </div>
+            ) : (
+              <div className="update-modal-body">
+
+                <div className="delete-search-bar">
+                  <Search size={16} className="delete-search-icon" />
+                  <input
+                    type="text"
+                    placeholder="Cari judul paper..."
+                    value={updateSearchQuery}
+                    onChange={e => { setUpdateSearchQuery(e.target.value); setSelectedUpdatePaper(null); }}
+                  />
+                </div>
+
+                {loadingUpdatePapers && (
+                  <p className="delete-status-msg">Memuat daftar paper...</p>
+                )}
+
+                {updatePapersError && (
+                  <p className="modal-error">{updatePapersError}</p>
+                )}
+
+                {!loadingUpdatePapers && !updatePapersError && (
+                  <div className="paper-list">
+                    {updatePaperList.filter(p =>
+                      p.title.toLowerCase().includes(updateSearchQuery.toLowerCase())
+                    ).length === 0 ? (
+                      <p className="delete-status-msg">Tidak ada paper ditemukan.</p>
+                    ) : (
+                      updatePaperList
+                        .filter(p => p.title.toLowerCase().includes(updateSearchQuery.toLowerCase()))
+                        .map(paper => (
+                          <div
+                            key={paper.id}
+                            className={`paper-list-item ${selectedUpdatePaper?.id === paper.id ? 'selected' : ''}`}
+                            onClick={() => {
+                              setSelectedUpdatePaper(paper);
+                              setUpdateForm({});
+                            }}
+                          >
+                            <div className="paper-list-radio">
+                              <div className="radio-dot" />
+                            </div>
+                            <div className="paper-list-info">
+                              <p className="paper-list-title">{paper.title}</p>
+                              <p className="paper-list-meta">
+                                ID #{paper.id} &middot; {paper.author} &middot; {paper.category}
+                              </p>
+                            </div>
+                          </div>
+                        ))
+                    )}
+                  </div>
+                )}
+
+                {selectedUpdatePaper && (
+                  <form className="update-paper-form" onSubmit={handleUpdateSubmit}>
+                    <p className="update-form-label">Update data untuk: <strong>{selectedUpdatePaper.title}</strong></p>
+
+                    <div className="form-group">
+                      <label>Judul (Opsional)</label>
+                      <input
+                        name="title"
+                        value={updateForm.title || ''}
+                        onChange={handleUpdateChange}
+                        placeholder={selectedUpdatePaper.title}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label>Tanggal Publikasi (Opsional)</label>
+                      <input
+                        type="date"
+                        name="published_date"
+                        value={updateForm.published_date || ''}
+                        onChange={handleUpdateChange}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label>Kategori (Opsional)</label>
+                      <input
+                        name="category"
+                        value={updateForm.category || ''}
+                        onChange={handleUpdateChange}
+                        placeholder={selectedUpdatePaper.category}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label>URL (Opsional)</label>
+                      <input
+                        name="url"
+                        type="url"
+                        value={updateForm.url || ''}
+                        onChange={handleUpdateChange}
+                        placeholder={selectedUpdatePaper.url}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label>Author (Opsional)</label>
+                      <input
+                        name="author"
+                        value={updateForm.author || ''}
+                        onChange={handleUpdateChange}
+                        placeholder={selectedUpdatePaper.author}
+                      />
+                    </div>
+
+                    {updateError && <p className="modal-error">{updateError}</p>}
+
+                    <div className="modal-actions">
+                      <button
+                        type="button"
+                        className="modal-cancel-btn"
+                        onClick={closeUpdateModal}
+                        disabled={updating}
+                      >
+                        Batal
+                      </button>
+                      <button
+                        type="submit"
+                        className="modal-submit-btn"
+                        disabled={updating}
+                      >
+                        {updating ? "Mengupdate..." : "Update Paper"}
+                      </button>
+                    </div>
+                  </form>
+                )}
 
               </div>
             )}
