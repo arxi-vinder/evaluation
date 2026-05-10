@@ -627,3 +627,70 @@ body {
   padding: 24px 0;
   margin: 0 28px;
 }
+
+/* Update button */
+.update-paper-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: #f0f9ff;
+  color: #0284c7;
+  border: 1.5px solid #bae6fd;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.update-paper-btn:hover {
+  background-color: #e0f2fe;
+  transform: translateY(-2px);
+  box-shadow: 0px 8px 16px -4px rgba(2, 132, 199, 0.2);
+}
+
+.update-paper-btn:active {
+  transform: scale(0.97);
+}
+
+/* Update modal */
+.update-modal-box {
+  max-width: 720px;
+}
+
+/* Update modal body */
+.update-modal-body {
+  padding-bottom: 28px;
+}
+
+.update-modal-body .modal-actions {
+  padding: 0 28px;
+  margin-top: 20px;
+}
+
+.update-modal-body .modal-error {
+  margin: 12px 28px 0;
+}
+
+/* Update paper form */
+.update-paper-form {
+  padding: 20px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.update-form-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+  margin: 0 0 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Success state for update modal */
+.update-modal-success {
+  color: #0284c7;
+}
